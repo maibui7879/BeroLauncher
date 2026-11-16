@@ -5,7 +5,9 @@ Launcher cộng đồng cho Stella Sora trên Windows x64, với giao diện ti�
 ## Chức năng hiện có
 
 - Chọn vị trí game, mở game.
-- Bật/tắt Việt hóa từ gói phát hành đi kèm.
+- Tự kiểm tra bản Việt hóa mới từ GitHub khi mở launcher.
+- Tải pack và xác minh chữ ký phát hành, kích thước và SHA-256 trước khi cài.
+- Bật/tắt Việt hóa; bản đã tải được giữ lại để dùng khi mất mạng.
 - Kiểm tra phiên bản dữ liệu game trước khi cài.
 - Sao lưu bản gốc và hoàn tác khi thay thế dữ liệu thất bại.
 
@@ -13,7 +15,7 @@ Màn hình chính dành cho người chơi; cài đặt vị trí game và ngôn
 
 ## Tình trạng cập nhật online
 
-**Chưa tích hợp tải pack trực tuyến trong bản 0.2.0.** Hiện launcher dùng thư mục `release` đi kèm. Luồng phát hành từ web local và đồng bộ pack đang được chuẩn bị; xem [kế hoạch phát hành](docs/UPDATES.md).
+Từ bản **0.3.0**, launcher nhận pack từ kênh GitHub `lang-stable`. Khi có bản mới, chọn **Cập nhật Việt hóa**; các nút **Bật Việt hóa**, **Tắt Việt hóa** và **Kiểm tra cập nhật** nằm trong Cài đặt. Xem [luồng phát hành](docs/UPDATES.md).
 
 Repo này chỉ chứa launcher và các kiểm thử. Web dịch, database, dữ liệu game gốc và thông tin xác thực không nằm trong repo. Pack ngôn ngữ được phân phối riêng qua GitHub Releases, không commit vào lịch sử Git.
 
@@ -32,7 +34,7 @@ dotnet run --project launcher-tests/Launcher.Tests.csproj
 dotnet publish launcher/StellaViet.Launcher.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts/BeroLauncher
 ```
 
-Gói Việt hóa tương thích gồm `release.json`, `ui.bin` và `story.bin`, đặt trong thư mục `release` cạnh `BeroLauncher.exe`. Mã nguồn và bản sao lưu game không cần gửi cho người chơi.
+Launcher tải gói tương thích gồm `release.json`, `ui.bin` và `story.bin` từ địa chỉ GitHub được ký xác minh. Có thể cung cấp gói local trong thư mục `release` cạnh `BeroLauncher.exe` cho chế độ offline. Mã nguồn và bản sao lưu game không cần gửi cho người chơi.
 
 Nếu đã bật Việt hóa bằng công cụ khác, hãy tắt bằng công cụ đó trước lần đầu cài qua BeroLauncher. Không ghi đè bản game chưa được hỗ trợ.
 

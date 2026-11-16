@@ -7,9 +7,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>BeroLauncher</AssemblyName>
     <Product>BeroLauncher</Product>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="update-public-key.pem" LogicalName="BeroLauncher.UpdateKey" />
     <Resource Include="../ui/fonts/Lexend.ttf" Link="Fonts/Lexend.ttf" />
     <Content Include="../ui/fonts/OFL-Lexend.txt" Link="OFL-Lexend.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
