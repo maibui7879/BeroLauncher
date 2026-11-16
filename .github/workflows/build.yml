@@ -1,0 +1,47 @@
+name: Build BeroLauncher
+on:
+  push:
+    branches: [main]
+    tags: ['launcher-v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Test installer with fixture data
+        run: dotnet run --project launcher-tests/Launcher.Tests.csproj -c Release
+      - name: Publish Windows x64 launcher
+        run: dotnet publish launcher/StellaViet.Launcher.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts/BeroLauncher
+      - name: Package launcher
+        shell: pwsh
+        run: |
+          Copy-Item LICENSE,README.md artifacts/BeroLauncher/
+          Compress-Archive -Path artifacts/BeroLauncher/* -DestinationPath artifacts/BeroLauncher-win-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BeroLauncher-win-x64
+          path: artifacts/BeroLauncher-win-x64.zip
+  release:
+    if: startsWith(github.ref, 'refs/tags/launcher-v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: BeroLauncher-win-x64
+          path: artifacts
+      - name: Publish launcher release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: gh release create "$RELEASE_TAG" artifacts/BeroLauncher-win-x64.zip --verify-tag --title "BeroLauncher $RELEASE_TAG" --notes "Windows x64. Launcher only; compatible language pack is distributed separately."

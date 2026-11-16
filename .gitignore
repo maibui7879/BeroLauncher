@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+artifacts/
+release/
+*.bin
+*.arcx
+*.sqlite*
+*.pfx
+*.pem
+.env*
+*.log
+*.tmp
+.vs/
