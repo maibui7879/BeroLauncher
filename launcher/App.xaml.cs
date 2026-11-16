@@ -13,6 +13,7 @@ public partial class App : Application {
   }
   var window=new MainWindow();
   if(e.Args.Length==2&&(e.Args[0]=="--smoke-test"||e.Args[0]=="--smoke-settings")){
+   await window.PreparePreview();
    if(e.Args[0]=="--smoke-settings")((FrameworkElement)window.FindName("SettingsPanel")).Visibility=Visibility.Visible;
    var content=(FrameworkElement)window.Content;
    content.Measure(new Size(1040,700));content.Arrange(new Rect(0,0,1040,700));content.UpdateLayout();

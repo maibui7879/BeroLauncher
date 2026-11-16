@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>BeroLauncher</AssemblyName>
     <Product>BeroLauncher</Product>
-    <Version>0.3.0</Version>
+    <Version>0.4.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="update-public-key.pem" LogicalName="BeroLauncher.UpdateKey" />

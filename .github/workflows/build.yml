@@ -22,7 +22,8 @@ jobs:
       - name: Package launcher
         shell: pwsh
         run: |
-          Copy-Item LICENSE,README.md artifacts/BeroLauncher/
+          Copy-Item LICENSE,README.md,CHANGELOG.md artifacts/BeroLauncher/
+          Copy-Item docs artifacts/BeroLauncher/docs -Recurse
           Compress-Archive -Path artifacts/BeroLauncher/* -DestinationPath artifacts/BeroLauncher-win-x64.zip
       - uses: actions/upload-artifact@v4
         with:

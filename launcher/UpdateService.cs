@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -20,7 +20,7 @@ public sealed class UpdateService
   var payload=Convert.FromBase64String(signed.Payload);using var rsa=RSA.Create();rsa.ImportFromPem(publicKey);
   if(!rsa.VerifyData(payload,Convert.FromBase64String(signed.Signature),HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1))throw new InvalidDataException("Không xác minh được bản cập nhật.");
   var update=JsonSerializer.Deserialize<LanguageUpdate>(payload,Json)??throw new InvalidDataException();
-  if(update.Schema!=1||update.Repository!="maibui7879/BeroLauncher"||update.Revision<=0||update.Version.Length!=13||!update.Version.All(char.IsAsciiDigit)||!Version.TryParse(update.MinLauncherVersion,out var minimum)||minimum>new Version(0,3,0))throw new InvalidDataException("Hãy cập nhật BeroLauncher trước.");
+  if(update.Schema!=1||update.Repository!="maibui7879/BeroLauncher"||update.Revision<=0||update.Version.Length!=13||!update.Version.All(char.IsAsciiDigit)||!Version.TryParse(update.MinLauncherVersion,out var minimum)||minimum>new Version(0,4,0))throw new InvalidDataException("Hãy cập nhật BeroLauncher trước.");
   if(update.Files is null||update.Files.Length!=3||!update.Files.Select(f=>f.Name).Order().SequenceEqual(new[]{"release.json","story.bin","ui.bin"}))throw new InvalidDataException("Bản cập nhật thiếu dữ liệu.");
   foreach(var f in update.Files){
    if(f.Size<=0||f.Size>268435456||f.Sha256.Length!=64||!f.Sha256.All(Uri.IsHexDigit)||f.Url!=$"https://github.com/maibui7879/BeroLauncher/releases/download/lang-v{update.Version}/{f.Name}")throw new InvalidDataException("Địa chỉ cập nhật không hợp lệ.");
@@ -28,7 +28,7 @@ public sealed class UpdateService
   return update;
  }
  static async Task<byte[]> FetchBounded(string url,long limit,CancellationToken cancellation){
-  using var request=new HttpRequestMessage(HttpMethod.Get,url);request.Headers.UserAgent.ParseAdd("BeroLauncher/0.3.0");request.Headers.CacheControl=new(){NoCache=true};
+  using var request=new HttpRequestMessage(HttpMethod.Get,url);request.Headers.UserAgent.ParseAdd("BeroLauncher/0.4.0");request.Headers.CacheControl=new(){NoCache=true};
   using var response=await Client.SendAsync(request,HttpCompletionOption.ResponseHeadersRead,cancellation);response.EnsureSuccessStatusCode();
   if(response.Content.Headers.ContentLength>limit)throw new InvalidDataException("Tệp cập nhật vượt giới hạn.");
   await using var source=await response.Content.ReadAsStreamAsync(cancellation);using var output=new MemoryStream();var buffer=new byte[65536];int n;
@@ -53,3 +53,4 @@ public sealed class UpdateService
   }finally{if(Directory.Exists(temp))Directory.Delete(temp,true);}
  }
 }
+

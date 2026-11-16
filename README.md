@@ -2,6 +2,8 @@
 
 Launcher cộng đồng cho Stella Sora trên Windows x64, với giao diện tiếng Việt và font Lexend.
 
+Bản 0.4.0 có icon vector native, panel cài đặt mới và trạng thái cập nhật rõ ràng hơn. Xem [thay đổi](CHANGELOG.md).
+
 ## Chức năng hiện có
 
 - Chọn vị trí game, mở game.
