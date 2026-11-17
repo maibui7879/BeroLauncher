@@ -1,67 +1,58 @@
-# BeroLauncher
+﻿# BeroLauncher
 
-Launcher cộng đồng cho Stella Sora trên Windows x64, với giao diện tiếng Việt và font Lexend.
+A community launcher for Stella Sora on Windows, with a Vietnamese interface and support for Vietnamese language packs.
 
-Bản 0.4.2 đưa cập nhật ngôn ngữ và chuyển về tiếng Anh ra màn hình chính, bổ sung trạng thái khởi động game và tiến trình cập nhật. Xem [thay đổi](CHANGELOG.md).
+[Download the launcher](https://github.com/maibui7879/BeroLauncher/releases/tag/launcher-v0.4.2) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/maibui7879/BeroLauncher/issues)
 
-## Chức năng hiện có
+## Getting started
 
-- Chọn vị trí game, mở game.
-- Tự kiểm tra bản Việt hóa mới từ GitHub khi mở launcher.
-- Tải pack và xác minh chữ ký phát hành, kích thước và SHA-256 trước khi cài.
-- Bật/tắt Việt hóa; bản đã tải được giữ lại để dùng khi mất mạng.
-- Kiểm tra phiên bản dữ liệu game trước khi cài.
-- Sao lưu bản gốc và hoàn tác khi thay thế dữ liệu thất bại.
+1. Download **BeroLauncher-win-x64.zip** from a launcher release.
+2. Extract the archive and run **BeroLauncher.exe**.
+3. Open **Cài đặt** (Settings) and select your Stella Sora installation folder if it is not detected.
+4. Close the game and the Yostar launcher before installing or changing a language pack.
+5. Select **Cập nhật gói ngôn ngữ** (Update language pack) to download and install the latest compatible Vietnamese pack.
+6. Select **Chơi ngay** (Play now) to launch the game.
 
-Màn hình chính dành cho người chơi; cài đặt vị trí game và ngôn ngữ nằm trong **Cài đặt**. Đây không phải launcher chính thức của Yostar.
+Select **Dùng tiếng Anh** (Use English) on the home screen to disable Vietnamese and restore the original game files backed up by BeroLauncher.
 
-## Tình trạng cập nhật online
+## Features
 
-Từ bản **0.3.0**, launcher nhận pack từ kênh GitHub `lang-stable`. Khi có bản mới, chọn **Cập nhật Việt hóa**; các nút **Bật Việt hóa**, **Tắt Việt hóa** và **Kiểm tra cập nhật** nằm trong Cài đặt. Xem [luồng phát hành](docs/UPDATES.md).
+- Launch Stella Sora and display its running status, with the play button disabled while the game is running.
+- Check for language pack updates automatically when the launcher opens.
+- Update language packs or switch back to English from the home screen.
+- Show progress while checking, downloading, installing, or restoring a language pack.
+- Verify package signatures, file sizes, and SHA-256 hashes before installation.
+- Check game data compatibility and back up original files before applying changes.
+- Roll back file replacements if installation fails.
 
-Repo này chỉ chứa launcher và các kiểm thử. Web dịch, database, dữ liệu game gốc và thông tin xác thực không nằm trong repo. Pack ngôn ngữ được phân phối riêng qua GitHub Releases, không commit vào lịch sử Git.
+Language packs are distributed separately from launcher releases. An internet connection is required to check for and download new packs. The Windows x64 release is self-contained and does not require a separate .NET installation.
 
-## Chạy từ mã nguồn
+If another translation tool has modified your game, restore the original files with that tool before using BeroLauncher.
 
-Cần Windows và .NET SDK 9 có hỗ trợ Windows Desktop.
+## Development
 
-```powershell
-dotnet run --project launcher/StellaViet.Launcher.csproj
-dotnet run --project launcher-tests/Launcher.Tests.csproj
-```
-
-Để đóng bản chạy độc lập, người nhận không cần cài .NET:
-
-```powershell
-dotnet publish launcher/StellaViet.Launcher.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts/BeroLauncher
-```
-
-Launcher tải gói tương thích gồm `release.json`, `ui.bin` và `story.bin` từ địa chỉ GitHub được ký xác minh. Có thể cung cấp gói local trong thư mục `release` cạnh `BeroLauncher.exe` cho chế độ offline. Mã nguồn và bản sao lưu game không cần gửi cho người chơi.
-
-Nếu đã bật Việt hóa bằng công cụ khác, hãy tắt bằng công cụ đó trước lần đầu cài qua BeroLauncher. Không ghi đè bản game chưa được hỗ trợ.
-
-## Kiểm tra mã nguồn
-
-Cần Node.js 22 trở lên cùng .NET SDK 9 trên Windows. Node.js chỉ dùng cho công cụ phát triển; launcher phát hành không cần Node.js.
+Requires Windows, .NET SDK 9 with Windows Desktop support, and Node.js 22 or later. Node.js is only needed for development tools.
 
 ```powershell
 npm ci --ignore-scripts
 dotnet tool restore
 dotnet restore launcher/StellaViet.Launcher.csproj
 dotnet restore launcher-tests/Launcher.Tests.csproj
-npm run format
 npm run lint
+dotnet build launcher/StellaViet.Launcher.csproj -c Release --no-restore
 npm test
 ```
 
-CSharpier định dạng C# thành các khối lệnh dễ đọc; `dotnet format style` kiểm tra quy tắc mã nguồn. Prettier kiểm tra Markdown, JSON, YAML, XAML và tệp dự án XML; giữ nguyên khoảng trắng có ý nghĩa trong XML. CI chạy lint, build với cảnh báo thành lỗi và kiểm thử trước khi đóng launcher. Các phụ thuộc công cụ khóa phiên bản trong lockfile và tool manifest; GitHub Actions khóa bằng SHA.
+Run the launcher from source:
 
-Mã launcher được chia theo trách nhiệm: `launcher/Models` chứa cấu trúc dữ liệu gói/cập nhật; `launcher/Services` chứa xác minh, tải, cài và khôi phục; các tệp `MainWindow.*` xử lý giao diện WPF. `launcher-tests` dùng chung đúng model và service của ứng dụng để kiểm tra các thao tác cài đặt trên dữ liệu giả lập.
+```powershell
+dotnet run --project launcher/StellaViet.Launcher.csproj
+```
 
-## Phát hành launcher qua GitHub
+Use `npm run format` to format the source. CI checks formatting, builds with warnings treated as errors, and runs installer tests against fixture data before packaging the application.
 
-Tag `launcher-v*` kích hoạt workflow dựng, kiểm thử và tạo bản phát hành GitHub. Tag launcher và tag pack ngôn ngữ được tách riêng để hai luồng cập nhật không lẫn nhau.
+## License
 
-## Giấy phép
+Source code is licensed under [GPL-3.0](LICENSE). The Lexend font is licensed under the [SIL Open Font License](ui/fonts/OFL-Lexend.txt).
 
-Mã nguồn theo [GPL-3.0](LICENSE). Font Lexend theo [SIL Open Font License](ui/fonts/OFL-Lexend.txt). Tên và tài sản game thuộc chủ sở hữu tương ứng.
+BeroLauncher is an unofficial community project and is not affiliated with or endorsed by Yostar. Stella Sora and its assets belong to their respective owners.
