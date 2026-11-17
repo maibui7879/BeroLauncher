@@ -1,5 +1,11 @@
 # Thay đổi
 
+## 0.4.3
+
+- Giữ launcher chạy nền khi đóng cửa sổ; thêm thao tác thoát và khôi phục tiếng Anh.
+- Giám sát phiên bằng tiến trình riêng, chờ game đóng trước khi phục hồi sau khi launcher bị dừng.
+- Ghi nhận phiên và nhật ký thay file để tiếp tục phục hồi sau crash hoặc tắt máy.
+
 ## 0.4.2
 
 - Thêm nút cập nhật gói ngôn ngữ và dùng tiếng Anh ngay trên màn hình chính.

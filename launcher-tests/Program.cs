@@ -2,6 +2,13 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using StellaViet;
 
+if (args.Length == 5 && args[0] == "--session-child" && args[2] == "--watch-session")
+{
+    AppContext.SetData("StellaViet.Store", args[1]);
+    LanguageSession.Watch(args[3], args[4]);
+    return;
+}
+
 var root = Path.Combine(Path.GetTempPath(), "StellaViet-test-" + Guid.NewGuid());
 Directory.CreateDirectory(root);
 AppContext.SetData("StellaViet.Store", Path.Combine(root, "state"));
@@ -202,6 +209,123 @@ try
             "Restored hash mismatch"
         );
     Console.WriteLine("PASS: dual-archive install, repeated install, restore");
+    PatchService.Install(game, release, _ => { }, () => { }, packKey);
+    using (var session = new LanguageSession(game))
+    {
+        var recordPath = Directory
+            .GetFiles(Path.Combine(PatchService.Store, "sessions"), "*.json")
+            .Single();
+        var sessionRecord = JsonSerializer.Deserialize<LanguageSession.Record>(
+            File.ReadAllText(recordPath)
+        )!;
+        bool touched = false;
+        Assert(
+            LanguageSession.RecoverPending(_ => touched = true) && !touched,
+            "Recovery touched a live owner's session"
+        );
+        File.WriteAllText(
+            recordPath,
+            JsonSerializer.Serialize(sessionRecord with { OwnerStarted = 0 })
+        );
+        Assert(
+            !LanguageSession.RecoverPending(_ => throw new IOException("Game is running")),
+            "Blocked restore was reported complete"
+        );
+        Assert(
+            File.Exists(recordPath) && PatchService.State(game) != null,
+            "Pending recovery was lost"
+        );
+        int attempts = 0;
+        int waits = 0;
+        LanguageSession.Watch(
+            game,
+            sessionRecord.Token,
+            g =>
+            {
+                if (++attempts == 1)
+                    throw new IOException("Game is running");
+                PatchService.Restore(g, _ => { }, () => { });
+            },
+            () =>
+            {
+                waits++;
+            },
+            () => { }
+        );
+        Assert(
+            attempts == 2 && waits == 1 && !File.Exists(recordPath),
+            "Guardian did not wait and restore after owner exit"
+        );
+        Assert(PatchService.State(game) == null, "Guardian left installed state behind");
+    }
+    Console.WriteLine(
+        "PASS: live session protected, blocked recovery retained, guardian restores after owner exit"
+    );
+    PatchService.Install(game, release, _ => { }, () => { }, packKey);
+    var committedState = Directory.GetFiles(PatchService.Store, "*.json").Single();
+    var interrupted = PatchService.State(game)!;
+    File.WriteAllText(
+        committedState + ".recovery",
+        JsonSerializer.Serialize(
+            interrupted with
+            {
+                Components = interrupted
+                    .Components.Select(c => c with { Previous = c.Original })
+                    .ToArray(),
+            }
+        )
+    );
+    File.Delete(committedState);
+    File.Copy(
+        Path.Combine(PatchService.Store, "backups", components[0].SourceSha256 + ".arcx"),
+        PatchService.Target(game, "ui"),
+        true
+    );
+    using (var session = new LanguageSession(game))
+    {
+        var recordPath = Directory
+            .GetFiles(Path.Combine(PatchService.Store, "sessions"), "*.json")
+            .Single();
+        var sessionRecord = JsonSerializer.Deserialize<LanguageSession.Record>(
+            File.ReadAllText(recordPath)
+        )!;
+        File.WriteAllText(
+            recordPath,
+            JsonSerializer.Serialize(sessionRecord with { OwnerStarted = 0 })
+        );
+        Assert(
+            LanguageSession.RecoverPending(g => PatchService.Restore(g, _ => { }, () => { })),
+            "Startup recovery failed"
+        );
+        foreach (var component in components)
+            Assert(
+                PatchService.Hash(PatchService.Target(game, component.Name))
+                    == component.SourceSha256,
+                "Partial install was not restored"
+            );
+        Assert(!File.Exists(committedState + ".recovery"), "Recovery journal was not cleared");
+    }
+    Console.WriteLine("PASS: interrupted two-file install recovered from journal on startup");
+    using (var session = new LanguageSession(Path.Combine(root, "guardian-handshake")))
+    {
+        var recordPath = Directory
+            .GetFiles(Path.Combine(PatchService.Store, "sessions"), "*.json")
+            .Single();
+        var start = new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!)
+        {
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        start.ArgumentList.Add("--session-child");
+        start.ArgumentList.Add(PatchService.Store);
+        session.EnsureGuardian(start);
+        Assert(File.Exists(recordPath), "Guardian cleaned up while owner was alive");
+        session.Complete();
+        Assert(!File.Exists(recordPath), "Completed session marker remained");
+    }
+    Console.WriteLine(
+        "PASS: separate guardian process ready handshake and clean session completion"
+    );
     var story = PatchService.Target(game, "story");
     File.AppendAllText(story, "game update");
     Fails(() => PatchService.Install(game, release, _ => { }, () => { }, packKey));

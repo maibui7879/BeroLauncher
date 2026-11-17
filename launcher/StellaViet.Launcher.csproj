@@ -3,16 +3,19 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
 
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 
     <AssemblyName>BeroLauncher</AssemblyName>
     <Product>BeroLauncher</Product>
-    <Version>0.4.2</Version>
+    <Version>0.4.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
     <!-- Match the imports available to source files linked by the test project. -->
     <Using Include="System.IO" />
     <Using Include="System.Net.Http" />

@@ -26,7 +26,7 @@ public partial class MainWindow
 
     async Task CheckUpdates()
     {
-        if (checking || busy || launching || gameRunning)
+        if (checking || busy || launching || gameRunning || !sessionReady || exitRequested)
             return;
         checking = true;
         CheckUpdatesButton.IsEnabled = false;
@@ -94,7 +94,15 @@ public partial class MainWindow
 
     async Task ApplyUpdate()
     {
-        if (busy || checking || launching || gameRunning || available == null)
+        if (
+            busy
+            || checking
+            || launching
+            || gameRunning
+            || available == null
+            || !sessionReady
+            || exitRequested
+        )
             return;
         var update = available;
         var game = GamePath.Text.Trim();
@@ -120,6 +128,7 @@ public partial class MainWindow
         try
         {
             PatchService.CheckClosed();
+            await EnsureLanguageSession();
             var downloaded = await UpdateService.Download(update, Message);
             languageOperation = "Đang cài đặt...";
             RefreshControls();

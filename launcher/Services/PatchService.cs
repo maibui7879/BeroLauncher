@@ -124,6 +124,8 @@ public sealed class PatchService
     public static InstallState? State(string game)
     {
         var p = StatePath(game);
+        if (File.Exists(p + ".recovery"))
+            p += ".recovery";
         return File.Exists(p)
             ? JsonSerializer.Deserialize<InstallState>(File.ReadAllText(p), Json)
             : null;
@@ -235,26 +237,55 @@ public sealed class PatchService
                 if (Hash(staged) != c.OutputSha256)
                     throw new IOException("Kiểm tra gói dựng lại thất bại.");
             }
-            Commit(
-                pending,
-                closed,
-                () =>
-                {
-                    var newState = new InstallState(
-                        Path.GetFullPath(game),
-                        r.Version,
-                        r.Components.Select(c => new InstalledComponent(
-                                c.Name,
-                                c.SourceSha256,
-                                c.OutputSha256
-                            ))
-                            .ToArray()
-                    );
-                    var p = StatePath(game);
-                    File.WriteAllText(p + ".tmp", JsonSerializer.Serialize(newState, Json));
-                    File.Move(p + ".tmp", p, true);
-                }
+            var newState = new InstallState(
+                Path.GetFullPath(game),
+                r.Version,
+                r.Components.Select(c => new InstalledComponent(
+                        c.Name,
+                        c.SourceSha256,
+                        c.OutputSha256
+                    ))
+                    .ToArray()
             );
+            var recovery = newState with
+            {
+                Components = newState
+                    .Components.Select((c, i) => c with { Previous = pending[i].before })
+                    .ToArray(),
+            };
+            var recoveryPath = StatePath(game) + ".recovery";
+            using (
+                var journal = new FileStream(
+                    recoveryPath + ".tmp",
+                    FileMode.Create,
+                    FileAccess.Write
+                )
+            )
+            {
+                JsonSerializer.Serialize(journal, recovery, Json);
+                journal.Flush(true);
+            }
+            File.Move(recoveryPath + ".tmp", recoveryPath, true);
+            try
+            {
+                Commit(
+                    pending,
+                    closed,
+                    () =>
+                    {
+                        var p = StatePath(game);
+                        File.WriteAllText(p + ".tmp", JsonSerializer.Serialize(newState, Json));
+                        File.Move(p + ".tmp", p, true);
+                    }
+                );
+                File.Delete(recoveryPath);
+            }
+            catch
+            {
+                if (pending.All(t => Hash(t.target) == t.before))
+                    File.Delete(recoveryPath);
+                throw;
+            }
         }
         finally
         {
@@ -373,7 +404,7 @@ public sealed class PatchService
                 var before = Hash(target);
                 if (before == c.Original)
                     continue;
-                if (before != c.Installed)
+                if (before != c.Installed && before != c.Previous)
                     throw new IOException("Dữ liệu đã đổi, không tự ghi đè bản cập nhật game.");
                 var original = Backup(c.Original);
                 if (Hash(original) != c.Original)
@@ -389,7 +420,15 @@ public sealed class PatchService
                 if (Hash(staged) != c.Original)
                     throw new IOException("Bản gốc tạm bị lỗi.");
             }
-            Commit(tasks, closed, () => File.Delete(StatePath(game)));
+            Commit(
+                tasks,
+                closed,
+                () =>
+                {
+                    File.Delete(StatePath(game));
+                    File.Delete(StatePath(game) + ".recovery");
+                }
+            );
         }
         finally
         {

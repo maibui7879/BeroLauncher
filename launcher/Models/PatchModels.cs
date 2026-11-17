@@ -13,6 +13,11 @@ public record Component(
 
 public record Release(int Schema, string Version, string CreatedAt, Component[] Components);
 
-public record InstalledComponent(string Name, string Original, string Installed);
+public record InstalledComponent(
+    string Name,
+    string Original,
+    string Installed,
+    string? Previous = null
+);
 
 public record InstallState(string GameDir, string Version, InstalledComponent[] Components);

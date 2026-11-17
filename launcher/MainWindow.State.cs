@@ -52,12 +52,20 @@ public partial class MainWindow
         if (PlayLabel == null)
             return;
         var valid = PatchService.IsGame(GamePath.Text.Trim());
-        var locked = busy || checking || launching || gameRunning;
+        var locked =
+            busy
+            || checking
+            || launching
+            || gameRunning
+            || !sessionReady
+            || exitRequested
+            || sessionTick;
         PlayLabel.Text =
             launching ? "Đang khởi tạo..."
             : gameRunning ? "Game đang chạy..."
             : "Chơi ngay";
-        PlayButton.IsEnabled = valid && !busy && !launching && !gameRunning;
+        PlayButton.IsEnabled =
+            valid && !busy && !launching && !gameRunning && sessionReady && !exitRequested;
         GameStatus.Text =
             launching ? "Đang khởi tạo..."
             : gameRunning ? "Game đang chạy..."
@@ -72,7 +80,13 @@ public partial class MainWindow
                 available != null
                 || (!languageActive && File.Exists(Path.Combine(package, "release.json")))
             );
-        GamePath.IsEnabled = BrowseButton.IsEnabled = !busy && !checking && !launching;
+        GamePath.IsEnabled = BrowseButton.IsEnabled =
+            !busy
+            && !checking
+            && !launching
+            && languageSession == null
+            && sessionReady
+            && !exitRequested;
         CheckLabel.Text = checking ? "Đang kiểm tra..." : "Kiểm tra cập nhật";
         UpdateLabel.Text = languageOperation ?? "Cập nhật";
         LanguageUpdateLabel.Text =

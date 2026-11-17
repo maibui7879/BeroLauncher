@@ -6,9 +6,26 @@ namespace StellaViet;
 
 public partial class App : Application
 {
+    Mutex? instance;
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (e.Args.Length == 3 && e.Args[0] == "--watch-session")
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            try
+            {
+                await Task.Run(() => LanguageSession.Watch(e.Args[1], e.Args[2]));
+            }
+            catch
+            {
+                Shutdown(1);
+                return;
+            }
+            Shutdown();
+            return;
+        }
         if (e.Args.Length == 2 && e.Args[0] == "--verify-update")
         {
             try
@@ -38,6 +55,37 @@ public partial class App : Application
                 Shutdown(1);
             }
             return;
+        }
+        bool preview =
+            e.Args.Length == 2 && (e.Args[0] == "--smoke-test" || e.Args[0] == "--smoke-settings");
+        if (!preview)
+        {
+            instance = new Mutex(false, "Local\\BeroLauncher-Interactive");
+            bool acquired;
+            try
+            {
+                acquired = instance.WaitOne(0);
+            }
+            catch (AbandonedMutexException)
+            {
+                acquired = true;
+            }
+            if (!acquired)
+            {
+                MessageBox.Show(
+                    "BeroLauncher đang chạy. Hãy mở từ biểu tượng ở khay hệ thống.",
+                    "BeroLauncher"
+                );
+                instance.Dispose();
+                instance = null;
+                Shutdown();
+                return;
+            }
+            Exit += (_, _) =>
+            {
+                instance.ReleaseMutex();
+                instance.Dispose();
+            };
         }
         var window = new MainWindow();
         if (e.Args.Length == 2 && (e.Args[0] == "--smoke-test" || e.Args[0] == "--smoke-settings"))

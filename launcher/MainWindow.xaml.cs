@@ -25,19 +25,36 @@ public partial class MainWindow : Window
         LoadPackage();
         Loaded += async (_, _) =>
         {
+            SetupTray();
             await RefreshGameState();
+            await InitializeSession();
             gameTimer.Start();
             await RefreshLanguageState();
             await CheckUpdates();
         };
-        gameTimer.Tick += async (_, _) => await RefreshGameState();
-        Closed += (_, _) => gameTimer.Stop();
+        gameTimer.Tick += async (_, _) =>
+        {
+            await RefreshGameState();
+            await SessionTick();
+        };
+        Closed += (_, _) =>
+        {
+            gameTimer.Stop();
+            tray?.Dispose();
+            languageSession?.Dispose();
+        };
         Closing += (_, e) =>
         {
-            if (busy)
+            if (!allowClose && tray != null)
             {
                 e.Cancel = true;
-                Message("Đang cập nhật. Hãy chờ hoàn tất trước khi đóng launcher.");
+                Hide();
+                tray.ShowBalloonTip(
+                    3000,
+                    "BeroLauncher",
+                    "Launcher đang chạy nền. Chọn Thoát và dùng tiếng Anh ở khay hệ thống để thoát hoàn toàn.",
+                    System.Windows.Forms.ToolTipIcon.Info
+                );
             }
         };
         PreviewKeyDown += (_, e) =>
@@ -135,7 +152,7 @@ public partial class MainWindow : Window
 
     async Task Run(Action<string, string> action, string success, string operation)
     {
-        if (busy || checking || launching || gameRunning)
+        if (busy || checking || launching || gameRunning || !sessionReady || exitRequested)
             return;
         UpdateButton.IsEnabled = CheckUpdatesButton.IsEnabled = false;
         var game = GamePath.Text.Trim();
@@ -153,7 +170,11 @@ public partial class MainWindow : Window
         RefreshControls();
         try
         {
+            if (operation != "Đang khôi phục...")
+                await EnsureLanguageSession();
             await Task.Run(() => action(game, package));
+            if (operation == "Đang khôi phục...")
+                FinishLanguageSession();
             Message(success);
             GameStatus.Text = "Sẵn sàng chơi";
         }
@@ -221,7 +242,7 @@ public partial class MainWindow : Window
 
     async void Play(object sender, RoutedEventArgs e)
     {
-        if (busy || launching)
+        if (busy || launching || !sessionReady || exitRequested)
             return;
         await RefreshGameState();
         if (gameRunning || launching || busy)

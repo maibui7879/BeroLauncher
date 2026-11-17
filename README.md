@@ -1,8 +1,8 @@
-﻿# BeroLauncher
+# BeroLauncher
 
 A community launcher for Stella Sora on Windows, with a Vietnamese interface and support for Vietnamese language packs.
 
-[Download the launcher](https://github.com/maibui7879/BeroLauncher/releases/tag/launcher-v0.4.2) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/maibui7879/BeroLauncher/issues)
+[Download the launcher](https://github.com/maibui7879/BeroLauncher/releases/tag/launcher-v0.4.3) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/maibui7879/BeroLauncher/issues)
 
 ## Getting started
 
@@ -14,6 +14,12 @@ A community launcher for Stella Sora on Windows, with a Vietnamese interface and
 6. Select **Chơi ngay** (Play now) to launch the game.
 
 Select **Dùng tiếng Anh** (Use English) on the home screen to disable Vietnamese and restore the original game files backed up by BeroLauncher.
+
+## Language sessions
+
+Keep BeroLauncher running while using Vietnamese. Closing its window keeps it running in the system tray. Double-click the tray icon to reopen it, or choose **Thoát và dùng tiếng Anh** (Exit and use English) to restore the original files and quit. If the game is running, the launcher waits for it to close first.
+
+A separate background guardian monitors active language sessions. If the launcher crashes or is terminated, the guardian attempts to restore English after the game and Yostar launcher close. If the computer shuts down, both processes are terminated, or restoration fails, recovery remains pending and is retried the next time BeroLauncher opens. Game updates or missing backups may require manual intervention; immediate restoration cannot be guaranteed.
 
 ## Features
 

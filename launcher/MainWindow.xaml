@@ -1,4 +1,4 @@
-﻿<Window
+<Window
   x:Class="StellaViet.MainWindow"
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -456,7 +456,28 @@
             Padding="0,18,0,0"
             Margin="0,22,0,0"
           >
-            <TextBlock Text="BeroLauncher 0.4.2" Foreground="#526859" FontSize="12" />
+            <StackPanel>
+              <TextBlock
+                Text="Đóng cửa sổ để chạy nền. Thoát launcher sẽ khôi phục tiếng Anh sau khi game đóng."
+                Foreground="#526859"
+                FontSize="12"
+                Margin="0,0,0,12"
+              />
+              <DockPanel>
+                <TextBlock
+                  Text="BeroLauncher 0.4.3"
+                  Foreground="#526859"
+                  FontSize="12"
+                  VerticalAlignment="Center"
+                />
+                <Button
+                  Content="Thoát launcher"
+                  Click="ExitLauncher"
+                  HorizontalAlignment="Right"
+                  Margin="12,0,0,0"
+                />
+              </DockPanel>
+            </StackPanel>
           </Border>
         </Grid>
       </Border>
