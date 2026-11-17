@@ -78,6 +78,7 @@
         <RowDefinition Height="80" />
         <RowDefinition Height="*" MinHeight="200" />
         <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
         <RowDefinition Height="Auto" MinHeight="136" />
       </Grid.RowDefinitions>
       <Grid Margin="30,0">
@@ -207,7 +208,49 @@
           </Button>
         </Grid>
       </Border>
-      <Grid Grid.Row="3" Margin="30,20,30,24">
+      <StackPanel Grid.Row="3" Margin="30,18,30,0">
+        <Label
+          Content="Vị trí cài game"
+          Target="{Binding ElementName=HomeGamePath}"
+          Padding="0"
+          FontWeight="Medium"
+          Margin="0,0,0,8"
+        />
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <TextBox
+            x:Name="HomeGamePath"
+            Text="{Binding Text, ElementName=GamePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            IsEnabled="{Binding IsEnabled, ElementName=GamePath}"
+            AutomationProperties.Name="Vị trí cài game"
+            FontSize="12"
+            VerticalContentAlignment="Center"
+            ToolTip="Nhập đường dẫn tới thư mục chứa StellaSora.exe. Chuyển về tiếng Anh trước khi đổi thư mục khi có phiên Việt hóa đang bật."
+          />
+          <Button
+            Grid.Column="1"
+            Click="ChooseGame"
+            IsEnabled="{Binding IsEnabled, ElementName=BrowseButton}"
+            Margin="12,0,0,0"
+          >
+            <StackPanel Orientation="Horizontal">
+              <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.Folder}" />
+              <TextBlock Text="Chọn thư mục" Margin="9,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </Grid>
+        <TextBlock
+          Text="{Binding Text, ElementName=PathHint}"
+          Foreground="#526859"
+          FontSize="12"
+          Margin="0,8,0,0"
+          AutomationProperties.LiveSetting="Polite"
+        />
+      </StackPanel>
+      <Grid Grid.Row="4" Margin="30,20,30,24">
         <Grid.ColumnDefinitions>
           <ColumnDefinition />
           <ColumnDefinition Width="230" />
@@ -465,7 +508,7 @@
               />
               <DockPanel>
                 <TextBlock
-                  Text="BeroLauncher 0.4.3"
+                  Text="BeroLauncher 0.4.4"
                   Foreground="#526859"
                   FontSize="12"
                   VerticalAlignment="Center"

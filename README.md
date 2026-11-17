@@ -2,7 +2,7 @@
 
 A community launcher for Stella Sora on Windows, with a Vietnamese interface and support for Vietnamese language packs.
 
-[Download the launcher](https://github.com/maibui7879/BeroLauncher/releases/tag/launcher-v0.4.3) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/maibui7879/BeroLauncher/issues)
+[Download the launcher](https://github.com/maibui7879/BeroLauncher/releases/tag/launcher-v0.4.4) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/maibui7879/BeroLauncher/issues)
 
 ## Getting started
 

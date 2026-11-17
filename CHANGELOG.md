@@ -1,5 +1,10 @@
 # Thay đổi
 
+## 0.4.4
+
+- Thêm ô đường dẫn và nút chọn thư mục game ngay trên màn hình chính.
+- Đồng bộ đường dẫn và trạng thái tìm thấy game với phần Cài đặt.
+
 ## 0.4.3
 
 - Giữ launcher chạy nền khi đóng cửa sổ; thêm thao tác thoát và khôi phục tiếng Anh.
