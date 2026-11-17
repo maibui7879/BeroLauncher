@@ -26,18 +26,22 @@ public partial class MainWindow
 
     async Task CheckUpdates()
     {
-        if (checking || busy)
+        if (checking || busy || launching || gameRunning)
             return;
         checking = true;
         CheckUpdatesButton.IsEnabled = false;
         CheckLabel.Text = "Đang kiểm tra…";
+        RefreshControls();
         try
         {
             await RefreshLanguageState();
             var update = await UpdateService.Check();
             if (update == null)
             {
+                available = null;
+                UpdateCard.Visibility = Visibility.Collapsed;
                 ReleaseInfo.Text = "Chưa có bản Việt hóa được phát hành trực tuyến.";
+                Message(ReleaseInfo.Text);
                 return;
             }
             var installed = PatchService.IsGame(GamePath.Text)
@@ -48,6 +52,7 @@ public partial class MainWindow
                 ReleaseInfo.Text = "Bạn đang dùng bản Việt hóa mới nhất.";
                 available = null;
                 UpdateCard.Visibility = Visibility.Collapsed;
+                Message(ReleaseInfo.Text);
                 return;
             }
             available = update;
@@ -60,13 +65,17 @@ public partial class MainWindow
         }
         catch
         {
+            available = null;
+            UpdateCard.Visibility = Visibility.Collapsed;
             ReleaseInfo.Text = "Chưa kiểm tra được cập nhật. Bạn vẫn có thể dùng bản đang cài.";
+            Message(ReleaseInfo.Text);
         }
         finally
         {
             checking = false;
             CheckLabel.Text = "Kiểm tra cập nhật";
             CheckUpdatesButton.IsEnabled = !busy;
+            RefreshControls();
         }
     }
 
@@ -74,9 +83,18 @@ public partial class MainWindow
 
     async void UpdateClick(object sender, RoutedEventArgs e) => await ApplyUpdate();
 
+    async void UpdateLanguageClick(object sender, RoutedEventArgs e)
+    {
+        if (busy || checking || launching || gameRunning)
+            return;
+        await CheckUpdates();
+        if (available != null)
+            await ApplyUpdate();
+    }
+
     async Task ApplyUpdate()
     {
-        if (busy || available == null)
+        if (busy || checking || launching || gameRunning || available == null)
             return;
         var update = available;
         var game = GamePath.Text.Trim();
@@ -87,6 +105,7 @@ public partial class MainWindow
             return;
         }
         busy = true;
+        languageOperation = "Đang tải...";
         UpdateButton.IsEnabled =
             CheckUpdatesButton.IsEnabled =
             GamePath.IsEnabled =
@@ -97,10 +116,13 @@ public partial class MainWindow
                 false;
         Progress.Visibility = Visibility.Visible;
         Progress.IsIndeterminate = SystemParameters.ClientAreaAnimation;
+        RefreshControls();
         try
         {
             PatchService.CheckClosed();
             var downloaded = await UpdateService.Download(update, Message);
+            languageOperation = "Đang cài đặt...";
+            RefreshControls();
             Message("Đang cài Việt hóa…");
             await Task.Run(() => PatchService.Install(game, downloaded, _ => { }));
             package = downloaded;
@@ -131,6 +153,7 @@ public partial class MainWindow
         finally
         {
             busy = false;
+            languageOperation = null;
             UpdateButton.IsEnabled =
                 CheckUpdatesButton.IsEnabled =
                 GamePath.IsEnabled =

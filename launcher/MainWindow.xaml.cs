@@ -25,9 +25,13 @@ public partial class MainWindow : Window
         LoadPackage();
         Loaded += async (_, _) =>
         {
+            await RefreshGameState();
+            gameTimer.Start();
             await RefreshLanguageState();
             await CheckUpdates();
         };
+        gameTimer.Tick += async (_, _) => await RefreshGameState();
+        Closed += (_, _) => gameTimer.Stop();
         Closing += (_, e) =>
         {
             if (busy)
@@ -117,6 +121,7 @@ public partial class MainWindow : Window
             PathHint.Text = "Đường dẫn chưa hợp lệ.";
         }
         _ = RefreshLanguageState();
+        RefreshControls();
     }
 
     void Message(string text)
@@ -128,13 +133,14 @@ public partial class MainWindow : Window
         });
     }
 
-    async Task Run(Action<string, string> action, string success)
+    async Task Run(Action<string, string> action, string success, string operation)
     {
-        if (busy)
+        if (busy || checking || launching || gameRunning)
             return;
         UpdateButton.IsEnabled = CheckUpdatesButton.IsEnabled = false;
         var game = GamePath.Text.Trim();
         busy = true;
+        languageOperation = operation;
         GamePath.IsEnabled =
             BrowseButton.IsEnabled =
             InstallButton.IsEnabled =
@@ -144,6 +150,7 @@ public partial class MainWindow : Window
         Progress.Visibility = Visibility.Visible;
         Progress.IsIndeterminate = SystemParameters.ClientAreaAnimation;
         Message("Đang cập nhật ngôn ngữ…");
+        RefreshControls();
         try
         {
             await Task.Run(() => action(game, package));
@@ -167,6 +174,7 @@ public partial class MainWindow : Window
         {
             UpdateButton.IsEnabled = CheckUpdatesButton.IsEnabled = true;
             busy = false;
+            languageOperation = null;
             GamePath.IsEnabled = BrowseButton.IsEnabled = RestoreButton.IsEnabled = true;
             PlayButton.IsEnabled = PatchService.IsGame(game);
             Progress.Visibility = Visibility.Collapsed;
@@ -199,15 +207,25 @@ public partial class MainWindow : Window
         else
             await Run(
                 (g, p) => PatchService.Install(g, p, _ => { }),
-                "Đã bật Việt hóa. Bạn có thể vào game."
+                "Đã bật Việt hóa. Bạn có thể vào game.",
+                "Đang cài đặt..."
             );
     }
 
     async void Restore(object sender, RoutedEventArgs e) =>
-        await Run((g, _) => PatchService.Restore(g, _ => { }), "Đã tắt Việt hóa.");
+        await Run(
+            (g, _) => PatchService.Restore(g, _ => { }),
+            "Đã chuyển sang tiếng Anh.",
+            "Đang khôi phục..."
+        );
 
-    void Play(object sender, RoutedEventArgs e)
+    async void Play(object sender, RoutedEventArgs e)
     {
+        if (busy || launching)
+            return;
+        await RefreshGameState();
+        if (gameRunning || launching || busy)
+            return;
         try
         {
             var game = Path.GetFullPath(GamePath.Text.Trim());
@@ -216,18 +234,28 @@ public partial class MainWindow : Window
                 OpenSettings(sender, e);
                 return;
             }
-            Process.Start(
-                new ProcessStartInfo(Path.Combine(game, "StellaSora.exe"))
-                {
-                    WorkingDirectory = game,
-                    UseShellExecute = true,
-                }
+            launching = true;
+            launchDeadline = DateTime.UtcNow.AddSeconds(45);
+            RefreshControls();
+            Message("Đang khởi tạo Stella Sora...");
+            using var process = await Task.Run(() =>
+                Process.Start(
+                    new ProcessStartInfo(Path.Combine(game, "StellaSora.exe"))
+                    {
+                        WorkingDirectory = game,
+                        UseShellExecute = true,
+                    }
+                )
             );
-            Message("Đang mở Stella Sora…");
         }
         catch
         {
+            launching = false;
             Message("Chưa thể mở game. Hãy kiểm tra vị trí cài trong Cài đặt.");
+        }
+        finally
+        {
+            RefreshControls();
         }
     }
 }

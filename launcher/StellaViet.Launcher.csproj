@@ -9,7 +9,7 @@
 
     <AssemblyName>BeroLauncher</AssemblyName>
     <Product>BeroLauncher</Product>
-    <Version>0.4.1</Version>
+    <Version>0.4.2</Version>
   </PropertyGroup>
 
   <ItemGroup>

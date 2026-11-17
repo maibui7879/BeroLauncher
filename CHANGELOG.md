@@ -1,5 +1,12 @@
 # Thay đổi
 
+## 0.4.2
+
+- Thêm nút cập nhật gói ngôn ngữ và dùng tiếng Anh ngay trên màn hình chính.
+- Hiển thị trạng thái khởi tạo, khóa nút chơi khi game đang chạy và bật lại sau khi game thoát.
+- Hiển thị tiến trình kiểm tra, tải, cài đặt và khôi phục ngôn ngữ trên các nút.
+- Đổi nhãn Thư viện thành Launcher và bỏ nhãn Windows.
+
 ## 0.4.1
 
 - Xác minh lại chữ ký và hash trước mỗi lần cài, kể cả gói đã lưu trên máy.

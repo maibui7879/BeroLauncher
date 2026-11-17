@@ -35,8 +35,8 @@
           x:Name="LibraryButton"
           Grid.Row="1"
           Click="Home"
-          ToolTip="Thư viện game"
-          AutomationProperties.Name="Thư viện game"
+          ToolTip="Launcher"
+          AutomationProperties.Name="Launcher"
           Background="#426052"
           Foreground="White"
           BorderThickness="0"
@@ -51,7 +51,7 @@
               HorizontalAlignment="Center"
             />
             <TextBlock
-              Text="Thư viện"
+              Text="Launcher"
               TextWrapping="NoWrap"
               FontSize="10"
               Margin="0,8,0,0"
@@ -78,7 +78,7 @@
         <RowDefinition Height="80" />
         <RowDefinition Height="*" MinHeight="200" />
         <RowDefinition Height="Auto" />
-        <RowDefinition Height="136" />
+        <RowDefinition Height="Auto" MinHeight="136" />
       </Grid.RowDefinitions>
       <Grid Margin="30,0">
         <Grid.ColumnDefinitions>
@@ -87,7 +87,7 @@
         </Grid.ColumnDefinitions>
         <StackPanel VerticalAlignment="Center">
           <TextBlock Text="BeroLauncher" FontSize="21" FontWeight="SemiBold" />
-          <TextBlock Text="Thư viện của bạn" Foreground="#526859" FontSize="12" Margin="0,4,0,0" />
+          <TextBlock Text="Launcher" Foreground="#526859" FontSize="12" Margin="0,4,0,0" />
         </StackPanel>
         <Button
           Grid.Column="1"
@@ -142,9 +142,6 @@
           <TextBlock Text="Stella Sora" FontSize="50" FontWeight="SemiBold" />
           <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
             <Border Background="#F0F5E9" Padding="10,5" CornerRadius="4">
-              <TextBlock Text="Windows" FontSize="12" Foreground="#3C5B48" />
-            </Border>
-            <Border Background="#F0F5E9" Padding="10,5" CornerRadius="4" Margin="8,0,0,0">
               <TextBlock
                 x:Name="LanguageState"
                 Text="Đang kiểm tra ngôn ngữ"
@@ -200,7 +197,12 @@
           >
             <StackPanel Orientation="Horizontal">
               <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.Download}" />
-              <TextBlock Text="Cập nhật" Margin="9,0,0,0" VerticalAlignment="Center" />
+              <TextBlock
+                x:Name="UpdateLabel"
+                Text="Cập nhật"
+                Margin="9,0,0,0"
+                VerticalAlignment="Center"
+              />
             </StackPanel>
           </Button>
         </Grid>
@@ -227,12 +229,47 @@
             Visibility="Collapsed"
             Foreground="#2E684B"
           />
+          <WrapPanel Margin="0,16,0,0">
+            <Button
+              Click="UpdateLanguageClick"
+              IsEnabled="{Binding IsEnabled, ElementName=CheckUpdatesButton}"
+              ToolTip="Kiểm tra và cài gói ngôn ngữ mới nhất. Hãy đóng game trước khi cập nhật."
+              Padding="12,10"
+              Margin="0,0,10,8"
+            >
+              <StackPanel Orientation="Horizontal">
+                <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.Refresh}" />
+                <TextBlock
+                  x:Name="LanguageUpdateLabel"
+                  Text="Cập nhật gói ngôn ngữ"
+                  Margin="9,0,0,0"
+                  VerticalAlignment="Center"
+                />
+              </StackPanel>
+            </Button>
+            <Button
+              Click="Restore"
+              IsEnabled="{Binding IsEnabled, ElementName=RestoreButton}"
+              ToolTip="Tắt Việt hóa và khôi phục bản tiếng Anh. Hãy đóng game trước khi đổi."
+              Padding="12,10"
+              Margin="0,0,0,8"
+            >
+              <StackPanel Orientation="Horizontal">
+                <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.Undo}" />
+                <TextBlock
+                  Text="{Binding Text, ElementName=RestoreLabel}"
+                  Margin="9,0,0,0"
+                  VerticalAlignment="Center"
+                />
+              </StackPanel>
+            </Button>
+          </WrapPanel>
         </StackPanel>
         <Button
           x:Name="PlayButton"
           Grid.Column="1"
           Click="Play"
-          FontSize="20"
+          FontSize="16"
           FontWeight="SemiBold"
           Height="60"
           Background="#2E684B"
@@ -250,7 +287,12 @@
               Fill="White"
               StrokeThickness="0"
             />
-            <TextBlock Text="Chơi ngay" Margin="13,0,0,0" VerticalAlignment="Center" />
+            <TextBlock
+              x:Name="PlayLabel"
+              Text="Chơi ngay"
+              Margin="13,0,0,0"
+              VerticalAlignment="Center"
+            />
           </StackPanel>
         </Button>
       </Grid>
@@ -380,7 +422,8 @@
                       <StackPanel Orientation="Horizontal">
                         <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.Undo}" />
                         <TextBlock
-                          Text="Dùng bản gốc"
+                          x:Name="RestoreLabel"
+                          Text="Dùng tiếng Anh"
                           Margin="9,0,0,0"
                           VerticalAlignment="Center"
                         />
@@ -413,7 +456,7 @@
             Padding="0,18,0,0"
             Margin="0,22,0,0"
           >
-            <TextBlock Text="BeroLauncher 0.4.1" Foreground="#526859" FontSize="12" />
+            <TextBlock Text="BeroLauncher 0.4.2" Foreground="#526859" FontSize="12" />
           </Border>
         </Grid>
       </Border>

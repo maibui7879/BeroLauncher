@@ -2,6 +2,93 @@ namespace StellaViet;
 
 public partial class MainWindow
 {
+    readonly System.Windows.Threading.DispatcherTimer gameTimer = new()
+    {
+        Interval = TimeSpan.FromSeconds(2),
+    };
+    bool pollingGame;
+    bool gameRunning;
+    bool launching;
+    DateTime launchDeadline;
+    string? languageOperation;
+
+    async Task RefreshGameState()
+    {
+        if (pollingGame)
+            return;
+        pollingGame = true;
+        try
+        {
+            gameRunning = await Task.Run(() =>
+            {
+                var processes = System.Diagnostics.Process.GetProcessesByName("StellaSora");
+                try
+                {
+                    return processes.Length > 0;
+                }
+                finally
+                {
+                    foreach (var process in processes)
+                        process.Dispose();
+                }
+            });
+            if (launching && (gameRunning || DateTime.UtcNow >= launchDeadline))
+            {
+                launching = false;
+                if (!gameRunning)
+                    Message("Chưa thấy game khởi động. Hãy thử lại.");
+            }
+        }
+        catch { }
+        finally
+        {
+            pollingGame = false;
+            RefreshControls();
+        }
+    }
+
+    void RefreshControls()
+    {
+        if (PlayLabel == null)
+            return;
+        var valid = PatchService.IsGame(GamePath.Text.Trim());
+        var locked = busy || checking || launching || gameRunning;
+        PlayLabel.Text =
+            launching ? "Đang khởi tạo..."
+            : gameRunning ? "Game đang chạy..."
+            : "Chơi ngay";
+        PlayButton.IsEnabled = valid && !busy && !launching && !gameRunning;
+        GameStatus.Text =
+            launching ? "Đang khởi tạo..."
+            : gameRunning ? "Game đang chạy..."
+            : valid ? "Sẵn sàng chơi"
+            : "Chưa tìm thấy game";
+        CheckUpdatesButton.IsEnabled = !locked;
+        UpdateButton.IsEnabled = !locked;
+        RestoreButton.IsEnabled = languageActive && !locked;
+        InstallButton.IsEnabled =
+            !locked
+            && (
+                available != null
+                || (!languageActive && File.Exists(Path.Combine(package, "release.json")))
+            );
+        GamePath.IsEnabled = BrowseButton.IsEnabled = !busy && !checking && !launching;
+        CheckLabel.Text = checking ? "Đang kiểm tra..." : "Kiểm tra cập nhật";
+        UpdateLabel.Text = languageOperation ?? "Cập nhật";
+        LanguageUpdateLabel.Text =
+            languageOperation ?? (checking ? "Đang kiểm tra..." : "Cập nhật gói ngôn ngữ");
+        RestoreLabel.Text =
+            languageOperation == "Đang khôi phục..." ? languageOperation : "Dùng tiếng Anh";
+        if (busy)
+            InstallLabel.Text = languageOperation ?? "Đang cài đặt...";
+        Progress.Visibility =
+            busy || checking
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
+        Progress.IsIndeterminate =
+            (busy || checking) && System.Windows.SystemParameters.ClientAreaAnimation;
+    }
+
     void FitWorkArea()
     {
         var area = System.Windows.SystemParameters.WorkArea;
@@ -40,7 +127,7 @@ public partial class MainWindow
         if (game != GamePath.Text.Trim())
             return;
         languageActive = active;
-        LanguageState.Text = active ? "Tiếng Việt đang bật" : "Chưa thiết lập Việt hóa";
+        LanguageState.Text = active ? "Tiếng Việt đang bật" : "Đang dùng tiếng Anh";
         if (!valid)
             LanguageState.Text = "Chưa chọn game";
         RestoreButton.IsEnabled = active && !busy;
@@ -53,5 +140,6 @@ public partial class MainWindow
             && (
                 available != null || (!active && File.Exists(Path.Combine(package, "release.json")))
             );
+        RefreshControls();
     }
 }
