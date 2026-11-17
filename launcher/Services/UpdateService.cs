@@ -52,7 +52,7 @@ public sealed class UpdateService
             || update.Version.Length != 13
             || !update.Version.All(char.IsAsciiDigit)
             || !Version.TryParse(update.MinLauncherVersion, out var minimum)
-            || minimum > new Version(0, 4, 0)
+            || minimum > new Version(0, 4, 1)
         )
             throw new InvalidDataException("Hãy cập nhật BeroLauncher trước.");
         if (
@@ -120,7 +120,7 @@ public sealed class UpdateService
     static async Task<byte[]> FetchBounded(string url, long limit, CancellationToken cancellation)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.UserAgent.ParseAdd("BeroLauncher/0.4.0");
+        request.Headers.UserAgent.ParseAdd("BeroLauncher/0.4.1");
         request.Headers.CacheControl = new() { NoCache = true };
         using var response = await Client.SendAsync(
             request,

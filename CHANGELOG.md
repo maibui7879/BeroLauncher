@@ -1,5 +1,12 @@
 # Thay đổi
 
+## 0.4.1
+
+- Xác minh lại chữ ký và hash trước mỗi lần cài, kể cả gói đã lưu trên máy.
+- Chặn gói cache bị sửa manifest/payload hoặc thiếu chữ ký. Gói cache cũ cần tải lại qua Kiểm tra cập nhật.
+- Tách model và dịch vụ, chuẩn hóa định dạng mã nguồn và bổ sung lint/build/test trong CI.
+- Khóa GitHub Actions bằng SHA, thêm CODEOWNERS và kiểm tra cập nhật phụ thuộc.
+
 ## 0.4.0
 
 - Icon vector đồng bộ cho thư viện, chơi game, cài đặt và ngôn ngữ.
