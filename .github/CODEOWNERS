@@ -1,0 +1,6 @@
+# Protect these owners with a required CODEOWNER review in repository rules.
+* @maibui7879
+/.github/ @maibui7879
+/launcher/Services/ @maibui7879
+/launcher/Models/ @maibui7879
+/launcher/update-public-key.pem @maibui7879

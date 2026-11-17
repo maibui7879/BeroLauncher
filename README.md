@@ -40,7 +40,25 @@ Launcher tải gói tương thích gồm `release.json`, `ui.bin` và `story.bin
 
 Nếu đã bật Việt hóa bằng công cụ khác, hãy tắt bằng công cụ đó trước lần đầu cài qua BeroLauncher. Không ghi đè bản game chưa được hỗ trợ.
 
-## Phát hành launcher
+## Kiểm tra mã nguồn
+
+Cần Node.js 22 trở lên cùng .NET SDK 9 trên Windows. Node.js chỉ dùng cho công cụ phát triển; launcher phát hành không cần Node.js.
+
+```powershell
+npm ci --ignore-scripts
+dotnet tool restore
+dotnet restore launcher/StellaViet.Launcher.csproj
+dotnet restore launcher-tests/Launcher.Tests.csproj
+npm run format
+npm run lint
+npm test
+```
+
+CSharpier định dạng C# thành các khối lệnh dễ đọc; `dotnet format style` kiểm tra quy tắc mã nguồn. Prettier kiểm tra Markdown, JSON, YAML, XAML và tệp dự án XML; giữ nguyên khoảng trắng có ý nghĩa trong XML. CI chạy lint, build với cảnh báo thành lỗi và kiểm thử trước khi đóng launcher. Các phụ thuộc công cụ khóa phiên bản trong lockfile và tool manifest; GitHub Actions khóa bằng SHA.
+
+Mã launcher được chia theo trách nhiệm: `launcher/Models` chứa cấu trúc dữ liệu gói/cập nhật; `launcher/Services` chứa xác minh, tải, cài và khôi phục; các tệp `MainWindow.*` xử lý giao diện WPF. `launcher-tests` dùng chung đúng model và service của ứng dụng để kiểm tra các thao tác cài đặt trên dữ liệu giả lập.
+
+## Phát hành launcher qua GitHub
 
 Tag `launcher-v*` kích hoạt workflow dựng, kiểm thử và tạo bản phát hành GitHub. Tag launcher và tag pack ngôn ngữ được tách riêng để hai luồng cập nhật không lẫn nhau.
 

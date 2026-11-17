@@ -1,0 +1,19 @@
+{
+  "name": "berolauncher-tooling",
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "format": "npm run format:dotnet && prettier --write .",
+    "format:dotnet": "dotnet format style launcher/StellaViet.Launcher.csproj --diagnostics IDE0005 --severity info --no-restore && dotnet format style launcher-tests/Launcher.Tests.csproj --diagnostics IDE0005 --severity info --no-restore && dotnet csharpier format .",
+    "format:check": "prettier --check .",
+    "lint": "dotnet format style launcher/StellaViet.Launcher.csproj --diagnostics IDE0005 --severity info --verify-no-changes --no-restore && dotnet format style launcher-tests/Launcher.Tests.csproj --diagnostics IDE0005 --severity info --verify-no-changes --no-restore && dotnet csharpier check . && npm run format:check",
+    "test": "dotnet run --project launcher-tests/Launcher.Tests.csproj -c Release"
+  },
+  "devDependencies": {
+    "@prettier/plugin-xml": "3.4.2",
+    "prettier": "3.10.1"
+  }
+}

@@ -1,0 +1,8 @@
+**/bin/
+**/obj/
+artifacts/
+release/
+node_modules/
+.npm-cache/
+ui/fonts/
+package-lock.json

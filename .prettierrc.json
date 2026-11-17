@@ -1,0 +1,13 @@
+{
+  "singleQuote": true,
+  "printWidth": 100,
+  "proseWrap": "preserve",
+  "plugins": ["@prettier/plugin-xml"],
+  "xmlWhitespaceSensitivity": "preserve",
+  "overrides": [
+    {
+      "files": ["*.xaml", "*.csproj", "*.props"],
+      "options": { "parser": "xml" }
+    }
+  ]
+}

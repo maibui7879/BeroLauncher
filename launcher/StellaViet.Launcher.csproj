@@ -3,15 +3,31 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
     <AssemblyName>BeroLauncher</AssemblyName>
     <Product>BeroLauncher</Product>
     <Version>0.4.0</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Match the imports available to source files linked by the test project. -->
+    <Using Include="System.IO" />
+    <Using Include="System.Net.Http" />
+  </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="update-public-key.pem" LogicalName="BeroLauncher.UpdateKey" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="../ui/fonts/Lexend.ttf" Link="Fonts/Lexend.ttf" />
-    <Content Include="../ui/fonts/OFL-Lexend.txt" Link="OFL-Lexend.txt" CopyToOutputDirectory="PreserveNewest" />
+    <Content
+      Include="../ui/fonts/OFL-Lexend.txt"
+      Link="OFL-Lexend.txt"
+      CopyToOutputDirectory="PreserveNewest"
+    />
   </ItemGroup>
 </Project>
