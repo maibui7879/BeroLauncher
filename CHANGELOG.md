@@ -1,5 +1,10 @@
 # Thay đổi
 
+## 0.4.6
+
+- Thêm kiểm tra và cập nhật launcher ngay trong ứng dụng, xác minh chữ ký và SHA-256 trước khi áp dụng.
+- Chờ kết thúc phiên Guardian và khôi phục file game trước khi thay launcher; hỗ trợ cả bản cài và portable.
+
 ## 0.4.5
 
 - Thêm bộ cài theo từng người dùng, tạo shortcut và chặn cập nhật/gỡ cài đặt khi launcher hoặc Guardian đang chạy.

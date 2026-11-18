@@ -10,7 +10,7 @@
 
     <AssemblyName>BeroLauncher</AssemblyName>
     <Product>BeroLauncher</Product>
-    <Version>0.4.5</Version>
+    <Version>0.4.6</Version>
     <ApplicationIcon>stella-sora-icon.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -24,6 +24,10 @@
 
   <ItemGroup>
     <EmbeddedResource Include="update-public-key.pem" LogicalName="BeroLauncher.UpdateKey" />
+    <EmbeddedResource
+      Include="launcher-update.ps1"
+      LogicalName="BeroLauncher.LauncherUpdateScript"
+    />
     <Resource Include="stella-sora-icon.ico" />
     <EmbeddedResource Include="stella-sora-icon.ico" LogicalName="BeroLauncher.LauncherIcon" />
   </ItemGroup>

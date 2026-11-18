@@ -40,6 +40,16 @@ Lưu câu không tự động phát hành. Một revision đã phát hành khôn
 
 Đã tích hợp publisher trên web local và bộ cập nhật của launcher 0.3.0. Web giữ khóa RSA riêng, repo chỉ chứa khóa công khai. Kênh ổn định là asset `channel.json` của release `lang-stable`; payload ký trỏ đến các asset bất biến của revision `lang-v…`. Khi thay asset kênh có thể có một khoảng 404 ngắn; launcher giữ bản hiện tại và cho kiểm tra lại.
 
-Launcher kiểm tra khi mở ứng dụng hoặc bấm **Kiểm tra cập nhật**, không nhận push trực tiếp khi đang mở suốt nhiều giờ. Không cần máy biên dịch luôn bật. Chưa tích hợp tự cập nhật chính file launcher.
+Launcher kiểm tra gói Việt hóa khi mở ứng dụng hoặc bấm **Kiểm tra cập nhật**, không nhận push trực tiếp khi đang mở suốt nhiều giờ. Không cần máy biên dịch luôn bật.
+
+## Tự cập nhật launcher
+
+- Launcher kiểm tra `launcher-stable/channel.json` khi mở app; manifest ký RSA bằng cùng khóa công khai đã nhúng trong launcher.
+- GitHub Actions tạo payload có phiên bản, URL cố định, kích thước và SHA-256 rồi đính kèm vào release phiên bản. Payload chưa ký và không được launcher dùng trực tiếp.
+- Sau khi release thành công, maintainer chạy `tools/publish-launcher-channel.mjs` cục bộ với khóa riêng để kiểm tra asset, ký payload và cập nhật asset `channel.json` của release `launcher-stable`. Khóa riêng không được đưa vào repo hoặc GitHub Actions.
+- Ví dụ PowerShell: đặt `GH_TOKEN` cục bộ với quyền Contents cần thiết, rồi chạy `node tools/publish-launcher-channel.mjs launcher-v0.4.6 "C:\secure\launcher-private-key.pem"`; xóa biến môi trường sau khi hoàn tất. Không gửi token hoặc khóa riêng vào chat, issue hay repo.
+- Người chơi chọn **Cập nhật launcher** trong app. Bản ZIP tải về được xác minh chữ ký, kích thước và hash trước khi giải nén.
+- Trình cập nhật riêng chờ launcher lẫn Guardian tự thoát; launcher dùng luồng thoát hiện có để khôi phục file game trước. Không có tiến trình nào bị cưỡng bức dừng.
+- Người dùng bản 0.4.5 cần cài thủ công bản 0.4.6 đầu tiên có hỗ trợ tự cập nhật; từ bản đó trở đi có thể cập nhật trong app.
 
 Khóa công khai cố định trong bản launcher. Không thay khóa riêng trên máy phát hành nếu chưa có kế hoạch cập nhật khóa trong launcher. Lưu bản sao khóa riêng ở nơi riêng tư; không đưa khóa riêng hay thông tin đăng nhập GitHub vào repo.

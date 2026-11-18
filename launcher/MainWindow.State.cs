@@ -73,6 +73,7 @@ public partial class MainWindow
             : "Chưa tìm thấy game";
         CheckUpdatesButton.IsEnabled = !locked;
         UpdateButton.IsEnabled = !locked;
+        LauncherUpdateButton.IsEnabled = !locked;
         RestoreButton.IsEnabled = languageActive && !locked;
         InstallButton.IsEnabled =
             !locked

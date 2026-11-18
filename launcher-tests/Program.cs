@@ -66,6 +66,19 @@ try
                 == version,
             "Valid signature rejected"
         );
+        var supportedMinimum = update with { MinLauncherVersion = "0.4.6" };
+        Assert(
+            UpdateService
+                .Verify(Envelope(supportedMinimum), rsa.ExportSubjectPublicKeyInfoPem())
+                .Version == version,
+            "Current launcher minimum version rejected"
+        );
+        Fails(() =>
+            UpdateService.Verify(
+                Envelope(update with { MinLauncherVersion = "0.4.7" }),
+                rsa.ExportSubjectPublicKeyInfoPem()
+            )
+        );
         using var wrong = RSA.Create(2048);
         bool rejected = false;
         try
@@ -96,6 +109,69 @@ try
         }
         Assert(rejected, "Unexpected host accepted");
         Console.WriteLine("PASS: signed feed, wrong signer rejection, URL allowlist");
+
+        var launcherPayload = JsonSerializer.SerializeToUtf8Bytes(
+            new
+            {
+                schema = 1,
+                repository = "maibui7879/BeroLauncher",
+                version = "0.4.6",
+                tag = "launcher-v0.4.6",
+                asset = "BeroLauncher-win-x64.zip",
+                size = 1000L,
+                sha256 = new string('a', 64),
+                notes = "Launcher update test",
+            }
+        );
+        var launcherEnvelope = JsonSerializer.Serialize(
+            new SignedUpdate(
+                Convert.ToBase64String(launcherPayload),
+                Convert.ToBase64String(
+                    rsa.SignData(
+                        launcherPayload,
+                        HashAlgorithmName.SHA256,
+                        RSASignaturePadding.Pkcs1
+                    )
+                )
+            )
+        );
+        var launcherUpdate = LauncherUpdateService.Verify(
+            launcherEnvelope,
+            rsa.ExportSubjectPublicKeyInfoPem()
+        );
+        Assert(
+            launcherUpdate.Url
+                == "https://github.com/maibui7879/BeroLauncher/releases/download/launcher-v0.4.6/BeroLauncher-win-x64.zip",
+            "Launcher update URL was not pinned to the release asset"
+        );
+        Fails(() =>
+            LauncherUpdateService.Verify(launcherEnvelope, wrong.ExportSubjectPublicKeyInfoPem())
+        );
+        var wrongAsset = JsonSerializer.SerializeToUtf8Bytes(
+            new
+            {
+                schema = 1,
+                repository = "maibui7879/BeroLauncher",
+                version = "0.4.6",
+                tag = "launcher-v0.4.6",
+                asset = "other.exe",
+                size = 1000L,
+                sha256 = new string('a', 64),
+                notes = "Launcher update test",
+            }
+        );
+        var wrongAssetEnvelope = JsonSerializer.Serialize(
+            new SignedUpdate(
+                Convert.ToBase64String(wrongAsset),
+                Convert.ToBase64String(
+                    rsa.SignData(wrongAsset, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1)
+                )
+            )
+        );
+        Fails(() =>
+            LauncherUpdateService.Verify(wrongAssetEnvelope, rsa.ExportSubjectPublicKeyInfoPem())
+        );
+        Console.WriteLine("PASS: launcher update signature, release URL and asset allowlist");
     }
     using var packSigner = RSA.Create(2048);
     var packKey = packSigner.ExportSubjectPublicKeyInfoPem();

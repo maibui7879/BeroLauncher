@@ -1,6 +1,6 @@
 #define MyAppName "BeroLauncher"
 #ifndef MyAppVersion
-  #define MyAppVersion "0.4.5"
+  #define MyAppVersion "0.4.6"
 #endif
 
 [Setup]

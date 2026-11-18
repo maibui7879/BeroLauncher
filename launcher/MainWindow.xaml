@@ -275,6 +275,24 @@
           />
           <WrapPanel Margin="0,16,0,0">
             <Button
+              x:Name="LauncherUpdateButton"
+              Click="LauncherUpdateClick"
+              Visibility="Collapsed"
+              Margin="0,0,10,8"
+              Padding="12,10"
+              ToolTip="Tải bản launcher mới đã xác minh. Phiên Việt hóa sẽ được khôi phục trước khi cập nhật."
+            >
+              <StackPanel Orientation="Horizontal">
+                <Path Style="{StaticResource Icon}" Data="{StaticResource Icon.Refresh}" />
+                <TextBlock
+                  x:Name="LauncherUpdateLabel"
+                  Text="Cập nhật launcher"
+                  Margin="9,0,0,0"
+                  VerticalAlignment="Center"
+                />
+              </StackPanel>
+            </Button>
+            <Button
               Click="UpdateLanguageClick"
               IsEnabled="{Binding IsEnabled, ElementName=CheckUpdatesButton}"
               ToolTip="Kiểm tra và cài gói ngôn ngữ mới nhất. Hãy đóng game trước khi cập nhật."
@@ -509,7 +527,7 @@
               />
               <DockPanel>
                 <TextBlock
-                  Text="BeroLauncher 0.4.4"
+                  Text="BeroLauncher 0.4.6"
                   Foreground="#526859"
                   FontSize="12"
                   VerticalAlignment="Center"

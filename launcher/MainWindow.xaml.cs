@@ -12,6 +12,8 @@ public partial class MainWindow : Window
     bool checking;
     bool languageActive;
     LanguageUpdate? available;
+    LauncherUpdate? launcherUpdate;
+    string? pendingLauncherUpdate;
     readonly string settings = Path.Combine(PatchService.Store, "game-path.txt");
 
     public MainWindow()
@@ -31,6 +33,7 @@ public partial class MainWindow : Window
             gameTimer.Start();
             await RefreshLanguageState();
             await CheckUpdates();
+            await CheckLauncherUpdate();
         };
         gameTimer.Tick += async (_, _) =>
         {
@@ -42,6 +45,28 @@ public partial class MainWindow : Window
             gameTimer.Stop();
             tray?.Dispose();
             languageSession?.Dispose();
+            if (pendingLauncherUpdate != null)
+            {
+                try
+                {
+                    LauncherUpdateService.StartApply(
+                        pendingLauncherUpdate,
+                        AppContext.BaseDirectory
+                    );
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        File.AppendAllText(
+                            Path.Combine(PatchService.Store, "launcher.log"),
+                            DateTime.Now + " " + ex + Environment.NewLine
+                        );
+                    }
+                    catch { }
+                    Process.Start(Path.Combine(AppContext.BaseDirectory, "BeroLauncher.exe"));
+                }
+            }
         };
         Closing += (_, e) =>
         {

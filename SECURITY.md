@@ -16,10 +16,11 @@ Các tệp trong repo không tự bật những thiết lập này:
 
 1. Bật 2FA/passkey; rà soát collaborator, deploy key và ứng dụng có quyền ghi. Token phát hành chỉ cấp quyền cần thiết cho kho này.
 2. Tạo ruleset cho `main`: bắt buộc pull request, CODEOWNER review, kiểm thử job `build` thành công; chặn force-push và xóa nhánh. Không bật bypass rộng cho token phát hành ngôn ngữ.
-3. Bảo vệ tag `launcher-v*`, `lang-v*` và `lang-stable`; chỉ cho tài khoản phát hành tin cậy tạo/cập nhật. Publisher hiện cần đổi asset của `lang-stable`; cân nhắc quyền này khi cấu hình.
+3. Bảo vệ tag `launcher-v*`, `launcher-stable`, `lang-v*` và `lang-stable`; chỉ cho tài khoản phát hành tin cậy tạo/cập nhật. Publisher cần đổi asset của hai kênh stable; cân nhắc quyền này khi cấu hình.
 4. Tạo environment `launcher-release`, cấu hình người duyệt và chỉ cho tag launcher hợp lệ triển khai. Workflow đã tham chiếu environment này; **tên environment không tự tạo yêu cầu duyệt**.
 5. Đặt quyền mặc định Actions là read-only, chỉ cho Actions được duyệt; bật secret scanning, push protection và private vulnerability reporting nếu khả dụng.
 6. Giữ nguyên pin SHA của Actions; xem xét PR Dependabot trước khi cập nhật. Review đặc biệt cẩn thận mọi thay đổi workflow, khóa công khai, bộ cập nhật và bộ cài.
+7. Ký kênh launcher bằng `tools/publish-launcher-channel.mjs` trên máy phát hành được bảo vệ. Giữ khóa riêng ngoài repo và GitHub Actions; dùng `GH_TOKEN` cục bộ chỉ với quyền Contents cần thiết.
 
 ## Kiểm tra trước khi phát hành
 
