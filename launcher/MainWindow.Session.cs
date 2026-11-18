@@ -21,10 +21,17 @@ public partial class MainWindow
         exitMenu = new System.Windows.Forms.ToolStripMenuItem("Thoát và dùng tiếng Anh");
         exitMenu.Click += (_, _) => Dispatcher.InvokeAsync(RequestExit);
         menu.Items.Add(exitMenu);
+        using var iconStream = typeof(App).Assembly.GetManifestResourceStream(
+            "BeroLauncher.LauncherIcon"
+        );
+        using var sourceIcon = iconStream != null ? new System.Drawing.Icon(iconStream) : null;
         tray = new System.Windows.Forms.NotifyIcon
         {
             Text = "BeroLauncher",
-            Icon = System.Drawing.SystemIcons.Application,
+            Icon =
+                sourceIcon != null
+                    ? (System.Drawing.Icon)sourceIcon.Clone()
+                    : System.Drawing.SystemIcons.Application,
             ContextMenuStrip = menu,
             Visible = true,
         };

@@ -47,10 +47,44 @@ jobs:
           Copy-Item LICENSE,README.md,CHANGELOG.md artifacts/BeroLauncher/
           Copy-Item docs artifacts/BeroLauncher/docs -Recurse
           Compress-Archive -Path artifacts/BeroLauncher/* -DestinationPath artifacts/BeroLauncher-win-x64.zip
+      - name: Build installer
+        shell: pwsh
+        run: |
+          choco install innosetup --no-progress --yes
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          $version = (dotnet msbuild launcher/StellaViet.Launcher.csproj -getProperty:Version).Trim()
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($env:GITHUB_REF -match '^refs/tags/launcher-v(.+)$' -and $Matches[1] -ne $version) {
+            throw "Release tag version $($Matches[1]) does not match project version $version"
+          }
+          & $iscc "/DMyAppVersion=$version" installer/BeroLauncher.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Test installer lifecycle
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem artifacts/BeroLauncher-Setup-*.exe | Select-Object -First 1
+          $installDir = Join-Path $env:RUNNER_TEMP 'BeroLauncher-Install-Test'
+          $arguments = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR=`"$installDir`""
+          $install = Start-Process -FilePath $setup.FullName -ArgumentList $arguments -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Installer failed with exit code $($install.ExitCode)" }
+          if (!(Test-Path (Join-Path $installDir 'BeroLauncher.exe'))) { throw 'Installed launcher was not found' }
+          if (!(Test-Path (Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\BeroLauncher.lnk'))) { throw 'Start Menu shortcut was not created' }
+          if (!(Test-Path (Join-Path ([Environment]::GetFolderPath('Desktop')) 'BeroLauncher.lnk'))) { throw 'Desktop shortcut was not created' }
+          $smoke = Join-Path $env:RUNNER_TEMP 'BeroLauncher-Install-Test.png'
+          $launch = Start-Process -FilePath (Join-Path $installDir 'BeroLauncher.exe') -ArgumentList @('--smoke-test', $smoke) -Wait -PassThru
+          if ($launch.ExitCode -ne 0 -or !(Test-Path $smoke)) { throw 'Installed launcher smoke test failed' }
+          $uninstall = Start-Process -FilePath (Join-Path $installDir 'unins000.exe') -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) { throw "Uninstaller failed with exit code $($uninstall.ExitCode)" }
+          if (Test-Path $installDir) { throw 'Application files remain after uninstall' }
+          if (Test-Path (Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\BeroLauncher.lnk')) { throw 'Start Menu shortcut remains after uninstall' }
+          if (Test-Path (Join-Path ([Environment]::GetFolderPath('Desktop')) 'BeroLauncher.lnk')) { throw 'Desktop shortcut remains after uninstall' }
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: BeroLauncher-win-x64
-          path: artifacts/BeroLauncher-win-x64.zip
+          path: |
+            artifacts/BeroLauncher-win-x64.zip
+            artifacts/BeroLauncher-Setup-*.exe
   release:
     if: github.event_name == 'push' && github.repository == 'maibui7879/BeroLauncher' && startsWith(github.ref, 'refs/tags/launcher-v')
     needs: build
@@ -69,4 +103,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
-        run: gh release create "$RELEASE_TAG" artifacts/BeroLauncher-win-x64.zip --verify-tag --title "BeroLauncher $RELEASE_TAG" --notes "Windows x64. Launcher only; compatible language pack is distributed separately."
+        run: gh release create "$RELEASE_TAG" artifacts/BeroLauncher-win-x64.zip artifacts/BeroLauncher-Setup-*.exe --verify-tag --title "BeroLauncher $RELEASE_TAG" --notes "Windows x64. Choose the installer or portable ZIP. Launcher only; compatible language pack is distributed separately."

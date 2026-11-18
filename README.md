@@ -2,12 +2,12 @@
 
 A community launcher for Stella Sora on Windows, with a Vietnamese interface and support for Vietnamese language packs.
 
-[Download the launcher](https://github.com/maibui7879/BeroLauncher/releases/tag/launcher-v0.4.4) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/maibui7879/BeroLauncher/issues)
+[Download the launcher](https://github.com/maibui7879/BeroLauncher/releases/tag/launcher-v0.4.5) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/maibui7879/BeroLauncher/issues)
 
 ## Getting started
 
-1. Download **BeroLauncher-win-x64.zip** from a launcher release.
-2. Extract the archive and run **BeroLauncher.exe**.
+1. Download **BeroLauncher-Setup-<version>.exe** to install BeroLauncher, or **BeroLauncher-win-x64.zip** for the portable version.
+2. If you chose the ZIP, extract the archive and run **BeroLauncher.exe**.
 3. Open **Cài đặt** (Settings) and select your Stella Sora installation folder if it is not detected.
 4. Close the game and the Yostar launcher before installing or changing a language pack.
 5. Select **Cập nhật gói ngôn ngữ** (Update language pack) to download and install the latest compatible Vietnamese pack.

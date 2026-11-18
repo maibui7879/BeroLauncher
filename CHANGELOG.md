@@ -1,5 +1,11 @@
 # Thay đổi
 
+## 0.4.5
+
+- Thêm bộ cài theo từng người dùng, tạo shortcut và chặn cập nhật/gỡ cài đặt khi launcher hoặc Guardian đang chạy.
+- Giữ bản ZIP portable và phát hành cùng bộ cài trên GitHub Releases.
+- Dùng icon Stella Sora cho file thực thi, cửa sổ launcher và biểu tượng khay hệ thống.
+
 ## 0.4.4
 
 - Thêm ô đường dẫn và nút chọn thư mục game ngay trên màn hình chính.
